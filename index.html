@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>প্রজেক্টর সাইন জেনারেটর - স্ক্রলিং মার্কি</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Bengali', system-ui, sans-serif;
+        }
+        
+        .sign-board {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 14px solid #0ea5e9;
+            box-shadow: 
+                0 0 40px #0ea5e9,
+                0 0 80px #0ea5e9,
+                inset 0 0 50px rgba(14, 165, 233, 0.4),
+                0 30px 60px -15px rgb(0 0 0 / 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sign-board::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 15px;
+            background: #0ea5e9;
+            box-shadow: 0 0 30px #0ea5e9;
+            z-index: 10;
+            border-radius: 50%;
+        }
+        
+        .projector-light {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.35) 0%, transparent 70%);
+            filter: blur(30px);
+            z-index: -1;
+            animation: light-beam 5s ease-in-out infinite;
+        }
+        
+        @keyframes light-beam {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+        }
+        
+        /* স্ক্রলিং মার্কি */
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            position: relative;
+        }
+        
+        .marquee-content {
+            display: inline-flex;
+            align-items: center;
+            animation: scrollLeft 25s linear infinite;
+            gap: 120px;
+        }
+        
+        .marquee-content:hover {
+            animation-play-state: paused;
+        }
+        
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .scroll-text {
+            font-size: 5.5rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            padding: 0 60px;
+            text-shadow: 
+                0 0 20px #0ea5e9,
+                0 0 40px #0ea5e9,
+                0 0 70px #0ea5e9,
+                0 0 100px #0ea5e9;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .led-dots {
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 20;
+        }
+        
+        .led-dot {
+            width: 14px;
+            height: 14px;
+            background: #22d3ee;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #22d3ee;
+            animation: led-blink 800ms infinite alternate;
+        }
+        
+        .speed-control {
+            accent-color: #0ea5e9;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-zinc-950 to-slate-900 text-white min-h-screen py-12">
+    <div class="max-w-6xl mx-auto px-6">
+        <!-- হেডার -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-4 bg-white/10 backdrop-blur-md px-10 py-4 rounded-3xl border border-white/20 mb-6">
+                <span class="text-5xl">📽️</span>
+                <h1 class="text-5xl font-bold tracking-tighter">প্রজেক্টর স্ক্রলিং সাইন</h1>
+                <span class="text-5xl">🪧</span>
+            </div>
+            <p class="text-2xl text-cyan-300">ডান দিক থেকে আস্তে আস্তে লেখা আসবে → বাম দিক দিয়ে চলে যাবে → বারবার লুপ হবে</p>
+            <p class="text-slate-400 mt-3">দোকান/অফিসের সামনে প্রজেক্টর বা LED বোর্ডের মতো দেখাবে</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            
+            <!-- কন্ট্রোল প্যানেল -->
+            <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-9 space-y-8">
+                <div>
+                    <label class="block text-cyan-400 text-xl mb-3 font-medium">দোকান / অফিসের নাম লিখুন</label>
+                    <input 
+                        id="nameInput"
+                        type="text" 
+                        class="w-full bg-white/10 border border-cyan-400/40 focus:border-cyan-400 rounded-2xl px-7 py-6 text-4xl outline-none transition-all text-white placeholder:text-slate-500"
+                        placeholder="যেমন: খুলনা ইলেকট্রনিক্স"
+                        value="খুলনা স্টোর">
+                </div>
+
+                <div>
+                    <label class="block text-cyan-400 text-xl mb-3 font-medium">স্ক্রলের গতি</label>
+                    <div class="flex items-center gap-4 bg-white/5 p-5 rounded-2xl">
+                        <input type="range" id="speedSlider" min="10" max="60" value="25" 
+                               class="speed-control w-full accent-cyan-400">
+                        <span id="speedValue" class="font-mono text-xl w-12 text-right">25s</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">স্লাইডার ডানে → ধীর, বামে → দ্রুত</p>
+                </div>
+
+                <div>
+                    <label class="block text-cyan-400 text-xl mb-3 font-medium">নিয়ন রঙ</label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <button onclick="setColor(0)" id="color0" class="color-btn active h-20 rounded-2xl border-4 border-cyan-400 bg-gradient-to-br from-cyan-400 to-blue-500"></button>
+                        <button onclick="setColor(1)" id="color1" class="color-btn h-20 rounded-2xl border-4 border-transparent bg-gradient-to-br from-emerald-400 to-teal-500"></button>
+                        <button onclick="setColor(2)" id="color2" class="color-btn h-20 rounded-2xl border-4 border-transparent bg-gradient-to-br from-rose-400 to-pink-500"></button>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="updatePreview()" 
+                            class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-2xl py-7 rounded-3xl transition-all">
+                        আপডেট করুন
+                    </button>
+                    <button onclick="downloadPNG()" 
+                            class="flex-1 border border-white/30 hover:bg-white/10 font-bold text-2xl py-7 rounded-3xl transition-all">
+                        📥 PNG ডাউনলোড
+                    </button>
+                </div>
+            </div>
+
+            <!-- প্রিভিউ -->
+            <div>
+                <div class="mb-4 flex items-center gap-3 text-sm text-slate-400">
+                    <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                    লাইভ প্রজেক্টর প্রিভিউ (স্ক্রলিং)
+                </div>
+                
+                <div id="previewContainer" class="sign-board mx-auto rounded-3xl aspect-video w-full max-w-[720px] flex items-center justify-center relative">
+                    <div class="projector-light"></div>
+                    
+                    <div class="marquee-wrapper w-full py-8">
+                        <div id="marqueeContent" class="marquee-content">
+                            <!-- JavaScript দিয়ে ডুপ্লিকেট হবে -->
+                        </div>
+                    </div>
+                    
+                    <!-- LED ডটস -->
+                    <div class="led-dots">
+                        <div class="led-dot"></div>
+                        <div class="led-dot" style="animation-delay:150ms"></div>
+                        <div class="led-dot" style="animation-delay:300ms"></div>
+                        <div class="led-dot" style="animation-delay:450ms"></div>
+                        <div class="led-dot" style="animation-delay:600ms"></div>
+                        <div class="led-dot" style="animation-delay:750ms"></div>
+                        <div class="led-dot" style="animation-delay:900ms"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 text-slate-400 text-sm leading-relaxed">
+                    লেখাটি ডান দিক থেকে শুরু করে আস্তে আস্তে বাম দিকে চলে যাবে<br>
+                    এবং সিমলেসলি আবার শুরু থেকে আসতে থাকবে (প্রজেক্টর/LED সাইনের মতো)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentColor = 0;
+        const colors = [
+            { shadow: '0 0 20px #22d3ee, 0 0 40px #22d3ee, 0 0 70px #22d3ee, 0 0 100px #22d3ee', textColor: '#ffffff' },
+            { shadow: '0 0 20px #34d399, 0 0 40px #34d399, 0 0 70px #34d399, 0 0 100px #34d399', textColor: '#ffffff' },
+            { shadow: '0 0 20px #fb7185, 0 0 40px #fb7185, 0 0 70px #fb7185, 0 0 100px #fb7185', textColor: '#ffffff' }
+        ];
+        
+        function createMarqueeText(text) {
+            const container = document.getElementById('marqueeContent');
+            container.innerHTML = '';
+            
+            // দুইবার টেক্সট যোগ করা হচ্ছে সিমলেস লুপের জন্য
+            for (let i = 0; i < 2; i++) {
+                const div = document.createElement('div');
+                div.className = 'scroll-text';
+                div.textContent = text + "   •   " + text;
+                container.appendChild(div);
+            }
+            
+            updateTextStyle();
+        }
+        
+        function updateTextStyle() {
+            const texts = document.querySelectorAll('.scroll-text');
+            const style = colors[currentColor];
+            
+            texts.forEach(text => {
+                text.style.textShadow = style.shadow;
+                text.style.color = style.textColor;
+            });
+            
+            // বর্ডার কালার আপডেট
+            const board = document.getElementById('previewContainer');
+            const colorHex = currentColor === 0 ? '#22d3ee' : currentColor === 1 ? '#34d399' : '#fb7185';
+            board.style.borderColor = colorHex;
+        }
+        
+        function updatePreview() {
+            const input = document.getElementById('nameInput').value.trim() || 'আপনার দোকান';
+            createMarqueeText(input);
+        }
+        
+        function setColor(index) {
+            currentColor = index;
+            document.querySelectorAll('.color-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+                btn.style.borderColor = i === index ? '#67e8f9' : 'transparent';
+            });
+            updateTextStyle();
+        }
+        
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            const valueEl = document.getElementById('speedValue');
+            const duration = parseInt(slider.value);
+            
+            valueEl.textContent = duration + 's';
+            
+            const marquee = document.getElementById('marqueeContent');
+            marquee.style.animationDuration = duration + 's';
+        }
+        
+        function downloadPNG() {
+            const text = document.getElementById('nameInput').value.trim() || 'খুলনা স্টোর';
+            const canvas = document.createElement('canvas');
+            canvas.width = 1400;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // ব্যাকগ্রাউন্ড
+            const grad = ctx.createLinearGradient(0, 0, 0, 600);
+            grad.addColorStop(0, '#1e2937');
+            grad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1400, 600);
+            
+            // নিয়ন বর্ডার
+            ctx.shadowColor = colors[currentColor].shadow.split(',')[0].split(' ')[3] || '#22d3ee';
+            ctx.shadowBlur = 60;
+            ctx.lineWidth = 35;
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.strokeRect(40, 40, 1320, 520);
+            
+            // টেক্সট (স্ট্যাটিক PNG এর জন্য একবার)
+            ctx.shadowBlur = 50;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 110px "Noto Sans Bengali"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 700, 280);
+            
+            ctx.shadowBlur = 20;
+            ctx.font = '700 42px "Noto Sans Bengali"';
+            ctx.fillStyle = '#67e8f9';
+            ctx.fillText('•   স্ক্রলিং প্রজেক্টর সাইন   •', 700, 420);
+            
+            const link = document.createElement('a');
+            link.download = `স্ক্রলিং-সাইন-${text}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:18px 40px;border-radius:9999px;font-weight:700;box-shadow:0 10px 30px -5px rgb(16 185 129);';
+            msg.innerHTML = '✅ PNG ডাউনলোড সম্পূর্ণ!';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2800);
+        }
+        
+        // ইনিশিয়াল সেটআপ
+        window.onload = () => {
+            // Tailwind
+            tailwind.config = { content: [] };
+            
+            // ইভেন্ট লিসনার
+            document.getElementById('nameInput').addEventListener('input', updatePreview);
+            document.getElementById('speedSlider').addEventListener('input', updateSpeed);
+            
+            // প্রথমবার লোড
+            setColor(0);
+            updatePreview();
+            updateSpeed();
+            
+            console.log('%c✅ স্ক্রলিং প্রজেক্টর সাইন রেডি! ডান → বাম লুপিং অ্যানিমেশন চালু।', 'color:#67e8f9;font-size:15px');
+        };
+    </script>
+</body>
+</html>
